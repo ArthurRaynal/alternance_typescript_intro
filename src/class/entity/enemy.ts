@@ -1,5 +1,5 @@
 import {Character} from "./character";
-import {Fighter} from "../interface/Fighter";
+import {Fighter} from "../../interface/Fighter";
 
 
 export class Enemy implements Fighter<Character> {
@@ -10,11 +10,12 @@ export class Enemy implements Fighter<Character> {
     constructor() {
         this.name = 'Enemy';
         this.ap = Math.floor(Math.random() * (100 + 1));
-        this.hp = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+        // this.hp = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+        this.hp = 200;
     }
 
     summary() {
-        console.log(`${this.name} [ HP: ${this.hp} | AP: ${this.ap} ]`)
+        console.log(`${this.name} [ HP: ${Math.round(this.hp)} | AP: ${Math.round(this.ap)} ]`)
     }
 
     attack(fighter: Character) {
@@ -23,7 +24,7 @@ export class Enemy implements Fighter<Character> {
     }
 
     takeDamage(damage: number) {
-        console.log('Damage taken : '+ damage)
+        console.log('Damage taken : '+ Math.round(damage))
         return this.hp -= damage;
     }
 }

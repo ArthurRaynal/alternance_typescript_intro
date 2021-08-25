@@ -9,11 +9,13 @@ import {Staff} from "./class/weapons/staff";
 import {Bow} from "./class/weapons/bow";
 
 const prompts = require('prompts');
+const axios = require('axios');
 
-async function fight(choice: number, char: Character) {
-    let enemy = new Enemy();
+async function fight(choice: number, char: Character, previousEnemy? :Enemy) {
+    let enemy = previousEnemy? previousEnemy : new Enemy();
     if (choice === 1) {
         console.log('you fight')
+        console.log('----------- Fight -----------')
         do {
             char.attack(enemy)
             console.log('-----------------------')
@@ -35,9 +37,10 @@ async function fight(choice: number, char: Character) {
         console.log(coinFlip());
         if (coinFlip() === escapeResponse.coinFlip) {
             console.log('You manage to escape !')
+            await getLine();
         } else {
             console.log('You fail to escape !')
-            await fight(1, char);
+            await fight(1, char,enemy);
         }
     }
 }
@@ -68,23 +71,24 @@ function weapSelection(weaponChoice: number) {
     return myWeap;
 }
 
-// async function getLine(): Promise<any> {
-//     const response = await fetch('https://kaamelott.hotentic.com/api/random/personnage/Le%20Ma%C3%AEtre%20d\'Armes');
-//     const body = await response.json();
-//     return body;
-// }
+async function getLine() {
+    try {
+        const response = await axios.get('https://kaamelott.hotentic.com/api/random/personnage/Le%20Ma%C3%AEtre%20d\'Armes');
+        console.log(response.data.citation.citation);
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 (async () => {
-    // const data = await getLine();
-    // console.log(data)
-    const charCreationResponse = await prompts(charCreationPrompt);
-    let myWeap = weapSelection(charCreationResponse.weapon)
-    let myChar = charCreation(charCreationResponse.class, charCreationResponse.username, charCreationResponse.gender, myWeap);
-    console.log(myWeap.name)
-    myChar.summary();
-    do {
-        console.log('Foe is approaching !')
-        const fightResponse = await prompts(fightPrompt);
-        await fight(fightResponse.choice, myChar);
-    } while (myChar.hp > 0)
+        const charCreationResponse = await prompts(charCreationPrompt);
+        let myWeap = weapSelection(charCreationResponse.weapon)
+        let myChar = charCreation(charCreationResponse.class, charCreationResponse.username, charCreationResponse.gender, myWeap);
+        console.log(myWeap.name)
+        myChar.summary();
+        do {
+            console.log('Foe is approaching !')
+            const fightResponse = await prompts(fightPrompt);
+            await fight(fightResponse.choice, myChar);
+        } while (myChar.hp > 0)
 })();
